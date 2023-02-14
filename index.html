@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Bitcoin Price Tracker</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+</head>
+<body>
+	<div class="container mt-5">
+		<h1>Bitcoin Price Tracker</h1>
+		<h2><span id="price"></span></h2>
+		<form class="form-inline mt-3">
+			<div class="form-group mr-3">
+				<label for="alarm_price">Set Alarm Price:</label>
+				<input type="number" class="form-control ml-2" id="alarm_price" step="0.01" min="0">
+			</div>
+			<button type="button" class="btn btn-primary" id="set_alarm">Set Alarm</button>
+			<button type="button" class="btn btn-danger ml-3" id="clear_alarm">Clear Alarm</button>
+		</form>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script>
+		var lastPrice = 0;
+		var intervalId = setInterval(getPrice, 1000);
+
+		function getPrice() {
+			$.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", function(data) {
+				var price = parseFloat(data.price);
+				$("#price").text("$" + price.toLocaleString());
+				if (lastPrice != 0 && price < lastPrice) {
+					checkAlarm(price);
+				}
+				lastPrice = price;
+			});
+		}
+
+		function checkAlarm(price) {
+			var alarmPrice = parseFloat($("#alarm_price").val());
+			if (alarmPrice != "" && price < alarmPrice) {
+				alert("Bitcoin price has fallen below $" + alarmPrice.toLocaleString() + "!");
+			}
+		}
+
+		$(document).ready(function() {
+			$("#set_alarm").click(function() {
+				var alarmPrice = $("#alarm_price").val();
+				if (alarmPrice != "") {
+					document.cookie = "alarm_price=" + alarmPrice;
+					alert("Alarm set at $" + alarmPrice.toLocaleString() + "!");
+				}
+			});
+
+			$("#clear_alarm").click(function() {
+				document.cookie = "alarm_price=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+				$("#alarm_price").val("");
+				alert("Alarm cleared!");
+			});
+
+			var alarmPrice = parseFloat(getCookie("alarm_price"));
+			if (!isNaN(alarmPrice)) {
+				$("#alarm_price").val(alarmPrice);
+			}
+		});
+
+		function getCookie(name) {
+			var cookieArr = document.cookie.split(";");
+			for (var i = 0; i < cookieArr.length; i++) {
+				var cookiePair = cookieArr[i].split("=");
+				if (name == cookiePair[0].trim()) {
+					return decodeURIComponent(cookiePair[1]);
+				}
+			}
+			return null;
+		}
+	</script>
+</body>
+</html>
