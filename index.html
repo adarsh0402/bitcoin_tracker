@@ -6,14 +6,18 @@
     <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
 </head>
 <body>
-	<div class="container mt-5">
-		<h1>Bitcoin Price Tracker</h1>
-		<h2><span id="price"></span></h2>
-		<form class="form-inline mt-3">
+	<div class="container mt-5 jumbotron w-50 p-3">
+    <div class='thumb audio mt-3 d-flex flex-row-reverse'><audio class='player_audio' src='alert.mp3' controls></audio></div>
+    <div class="alert alert-danger mt-3 mr-3 alert_msg text-center" role="alert" style="display: none;"></div>
+
+		<h1 class="text-center p-5 mt-5">Bitcoin Price Tracker</h1>
+		<h2 class="text-center font-weight-bold mb-5"><span id="price"></span></h2>
+		<form class="form-inline mt-3 justify-content-center">
 			<div class="form-group mr-3">
 				<label for="alarm_price">Set Alarm Price:</label>
 				<input type="number" class="form-control ml-2" id="alarm_price" step="0.01" min="0">
 			</div>
+      
 			<button type="button" class="btn btn-primary" id="set_alarm">Set Alarm</button>
 			<button type="button" class="btn btn-danger ml-3" id="clear_alarm">Clear Alarm</button>
 		</form>
@@ -37,8 +41,12 @@
 		function checkAlarm(price) {
 			var alarmPrice = parseFloat($("#alarm_price").val());
 			if (alarmPrice != "" && price < alarmPrice) {
-				alert("Bitcoin price has fallen below $" + alarmPrice.toLocaleString() + "!");
-			}
+        $('.alert_msg').toggle("slide");
+				$('.alert_msg').text("Bitcoin price has fallen below $" + alarmPrice.toLocaleString() + "!");
+        $('.player_audio').trigger('play');			
+      }else{
+        $('.alert_msg_above').text("Bitcoin price is above $" + alarmPrice.toLocaleString() + "!");
+      }
 		}
 
 		$(document).ready(function() {
